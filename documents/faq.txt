@@ -1,0 +1,25 @@
+Frequently Asked Questions
+
+Q: How do I reset my password?
+
+A:
+Go to Login page
+Click Forgot Password
+Follow the email instructions.
+
+Q: How do I update my profile?
+
+A:
+Go to Account Settings
+Click Edit Profile.
+
+Q: How do I download invoices?
+
+A:
+Go to Billing
+Select Invoice History.
+
+Q: How do I activate my account?
+
+A:
+Click the activation link sent to your registered email.

@@ -1,0 +1,30 @@
+ABC Technologies Pricing Guide
+
+Basic Plan
+Price:
+$10/month
+
+Features:
+- User Management
+- Basic Reports
+- Email Support
+
+Professional Plan
+Price:
+$25/month
+
+Features:
+- Everything in Basic
+- Analytics Dashboard
+- API Access
+- Priority Support
+
+Enterprise Plan
+Price:
+Contact Sales
+
+Features:
+- Unlimited Users
+- Dedicated Manager
+- Custom Integrations
+- 24x7 Support
