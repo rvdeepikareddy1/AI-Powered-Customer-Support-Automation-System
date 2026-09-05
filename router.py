@@ -4,64 +4,72 @@ from langchain_groq import ChatGroq
 load_dotenv()
 
 llm = ChatGroq(
-    model="llama-3.3-70b-versatile",
+    model="openai/gpt-oss-20b",
     temperature=0
 )
 
 
-def intent_classifier(state):
-    query = state["query"]
-
+def classify_intent(query):
     prompt = f"""
-You are an expert AI Customer Support Intent Classifier.
+You are a customer support intent classifier.
 
-Your job is to classify customer queries into ONLY ONE of these departments.
+Classify the customer query into exactly ONE department.
 
 Departments:
 
-1. Sales
+Sales:
 - Pricing
 - Subscription plans
 - Product features
 - Product information
 - Demo requests
 
-2. Technical
+Technical:
 - Application crashes
 - Errors
-- Installation issues
+- Installation problems
 - Login problems
-- Configuration issues
+- Configuration problems
 
-3. Billing
-- Refund requests
-- Invoice requests
-- Payment issues
+Billing:
+- Refunds
+- Invoices
+- Payments
 - Charges
 - Transactions
 
-4. Account
+Account:
 - Password reset
-- Profile update
+- Profile updates
 - Account activation
 - Account deactivation
 
 Customer Query:
 {query}
 
-Rules:
-- Return ONLY ONE WORD.
-- Possible outputs are:
-  Sales
-  Technical
-  Billing
-  Account
-- Do not explain.
-- Do not write any extra text.
+Return ONLY ONE of these words:
+
+Sales
+Technical
+Billing
+Account
 """
 
     response = llm.invoke(prompt)
 
-    state["intent"] = response.content.strip()
+    intent = response.content.strip()
 
+    # Make sure the output is one of our valid departments
+    valid_intents = ["Sales", "Technical", "Billing", "Account"]
+
+    for department in valid_intents:
+        if department.lower() in intent.lower():
+            return department
+
+    # Default department if the model gives an unexpected answer
+    return "Account"
+
+
+def intent_classifier(state):
+    state["intent"] = classify_intent(state["query"])
     return state

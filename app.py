@@ -1,44 +1,45 @@
 from graph import graph
-from memory import create_database, save_conversation, get_last_query
+from memory import (
+    create_database,
+    save_conversation,
+    get_last_conversation
+)
 from approval import requires_approval
 from supervisor import supervisor_approval, review_response
+
 
 # Create SQLite database
 create_database()
 
 customer_name = "David"
 
-query = input("Customer Query : ")
+query = input("Customer Query: ").strip()
+
 
 # ---------------- MEMORY RECALL ----------------
 
 if "previous" in query.lower() and "issue" in query.lower():
 
-    previous = get_last_query(customer_name)
+    previous = get_last_conversation(customer_name)
 
-    print("\nPrevious Support Issue:")
-    print(previous)
+    if previous:
+
+        print("\nPrevious Support Issue:")
+        print(previous["query"])
+
+        print("\nPrevious Response:")
+        print(previous["response"])
+
+    else:
+
+        print("\nNo previous conversation found.")
+
+
+# ---------------- NORMAL QUERY ----------------
 
 else:
 
-    state = {
-        "customer_name": customer_name,
-        "query": query,
-        "intent": "",
-        "department": "",
-        "retrieved_context": "",
-        "approval_required": False,
-        "approved": False,
-        "response": "",
-        "history": ""
-    }
-
-    result = graph.invoke(state)
-
-    # AI Supervisor reviews every response
-    reviewed_response = review_response(result["response"])
-
-    # Human approval only for risky requests
+    # Check whether human approval is required
     if requires_approval(query):
 
         approved = supervisor_approval(query)
@@ -46,33 +47,37 @@ else:
         if not approved:
 
             print("\nRequest Rejected by Supervisor.")
+            exit()
 
-        else:
+        print("\nSupervisor Approved the Request.")
 
-            print("\nSupervisor Approved the Request.")
+    state = {
+        "customer_name": customer_name,
+        "query": query,
+        "intent": "",
+        "retrieved_context": "",
+        "approval_required": requires_approval(query),
+        "approved": True,
+        "response": "",
+        "history": ""
+    }
 
-            print("\nIntent :", result["intent"])
+    # Run the LangGraph workflow
+    result = graph.invoke(state)
 
-            print("\nFinal Response:\n")
+    # AI supervisor reviews the generated response
+    reviewed_response = review_response(
+        result["response"]
+    )
 
-            print(reviewed_response)
+    print("\nIntent:", result["intent"])
 
-            save_conversation(
-                customer_name,
-                result["query"],
-                reviewed_response
-            )
+    print("\nFinal Response:\n")
+    print(reviewed_response)
 
-    else:
-
-        print("\nIntent :", result["intent"])
-
-        print("\nFinal Response:\n")
-
-        print(reviewed_response)
-
-        save_conversation(
-            customer_name,
-            result["query"],
-            reviewed_response
-        )
+    # Save conversation in SQLite
+    save_conversation(
+        customer_name,
+        result["query"],
+        reviewed_response
+    )

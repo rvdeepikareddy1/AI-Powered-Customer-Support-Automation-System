@@ -1,5 +1,6 @@
 from router import classify_intent
 
+
 queries = [
     "What are your pricing plans?",
     "My application crashes when I upload a file.",
@@ -7,6 +8,17 @@ queries = [
     "I need a refund."
 ]
 
-for q in queries:
-    print(f"\nQuery: {q}")
-    print("Intent:", classify_intent(q))
+
+for query in queries:
+
+    intent = classify_intent(query)
+
+    print(
+        f"Query: {query}"
+    )
+
+    print(
+        f"Intent: {intent}"
+    )
+
+    print("-" * 40)

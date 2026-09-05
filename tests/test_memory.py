@@ -1,11 +1,39 @@
-from memory import *
+from memory import (
+    create_database,
+    save_conversation,
+    get_last_conversation
+)
+
 
 create_database()
 
+
 save_conversation(
-    "David",
+    "TestUser",
     "I have a billing issue.",
-    "Billing response"
+    "Please contact our billing team."
 )
 
-print(get_last_query("David"))
+
+conversation = get_last_conversation(
+    "TestUser"
+)
+
+
+print("Previous Conversation:")
+
+if conversation:
+
+    print(
+        "Query:",
+        conversation["query"]
+    )
+
+    print(
+        "Response:",
+        conversation["response"]
+    )
+
+else:
+
+    print("No conversation found.")

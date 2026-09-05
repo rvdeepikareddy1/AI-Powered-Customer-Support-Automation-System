@@ -2,6 +2,7 @@ from langgraph.graph import StateGraph, END
 
 from state import SupportState
 from router import intent_classifier
+
 from agents import (
     sales_agent,
     technical_agent,
@@ -9,37 +10,54 @@ from agents import (
     account_agent
 )
 
+
 builder = StateGraph(SupportState)
 
-builder.add_node("Intent", intent_classifier)
 
-builder.add_node("Sales", sales_agent)
+# Nodes
+builder.add_node(
+    "Intent",
+    intent_classifier
+)
 
-builder.add_node("Technical", technical_agent)
+builder.add_node(
+    "Sales",
+    sales_agent
+)
 
-builder.add_node("Billing", billing_agent)
+builder.add_node(
+    "Technical",
+    technical_agent
+)
 
-builder.add_node("Account", account_agent)
+builder.add_node(
+    "Billing",
+    billing_agent
+)
+
+builder.add_node(
+    "Account",
+    account_agent
+)
 
 
+# Starting point
 builder.set_entry_point("Intent")
 
 
+# Decide which agent should handle the query
 def route(state):
 
     intent = state["intent"]
 
-    if intent == "Sales":
-        return "Sales"
+    routes = {
+        "Sales": "Sales",
+        "Technical": "Technical",
+        "Billing": "Billing",
+        "Account": "Account"
+    }
 
-    elif intent == "Technical":
-        return "Technical"
-
-    elif intent == "Billing":
-        return "Billing"
-
-    else:
-        return "Account"
+    return routes.get(intent, "Account")
 
 
 builder.add_conditional_edges(
@@ -47,9 +65,12 @@ builder.add_conditional_edges(
     route
 )
 
+
+# End after the selected agent responds
 builder.add_edge("Sales", END)
 builder.add_edge("Technical", END)
 builder.add_edge("Billing", END)
 builder.add_edge("Account", END)
+
 
 graph = builder.compile()

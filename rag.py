@@ -1,22 +1,40 @@
+from functools import lru_cache
+from pathlib import Path
+
 from langchain_community.document_loaders import TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 
 
+BASE_DIR = Path(__file__).resolve().parent
+DOCUMENTS_DIR = BASE_DIR / "documents"
+
+
+@lru_cache(maxsize=1)
 def create_vectorstore():
 
     files = [
-        "documents/company_policy.txt",
-        "documents/pricing_guide.txt",
-        "documents/technical_manual.txt",
-        "documents/faq.txt"
+        DOCUMENTS_DIR / "company_policy.txt",
+        DOCUMENTS_DIR / "pricing_guide.txt",
+        DOCUMENTS_DIR / "technical_manual.txt",
+        DOCUMENTS_DIR / "faq.txt"
     ]
 
     documents = []
 
     for file in files:
-        loader = TextLoader(file)
+
+        if not file.exists():
+            raise FileNotFoundError(
+                f"Document not found: {file}"
+            )
+
+        loader = TextLoader(
+            str(file),
+            encoding="utf-8"
+        )
+
         documents.extend(loader.load())
 
     splitter = RecursiveCharacterTextSplitter(
@@ -36,6 +54,8 @@ def create_vectorstore():
     )
 
     return vectorstore
+
+
 def retrieve_context(query):
 
     db = create_vectorstore()
@@ -45,9 +65,9 @@ def retrieve_context(query):
         k=2
     )
 
-    context = ""
-
-    for doc in docs:
-        context += doc.page_content + "\n"
+    context = "\n\n".join(
+        doc.page_content
+        for doc in docs
+    )
 
     return context
