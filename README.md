@@ -24,7 +24,6 @@ An AI-powered customer support application built with Python, LangGraph, LangCha
 | Hugging Face Embeddings | Document and query embeddings |
 | FAISS | Vector similarity search |
 | SQLite | Conversation persistence |
-| Flask / CLI | Use the interface implemented in the project |
 
 ## Architecture
 
